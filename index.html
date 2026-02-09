@@ -1,0 +1,178 @@
+
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anchorage Length Calculator – EN 1992-1-1</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar container">
+    <div class="brand">
+      <img src="assets/logo.png" alt="LR logo" class="logo" />
+      <div class="titles">
+        <h1>Anchorage Length Calculator</h1>
+        <p class="subtitle">EN 1992-1-1 (EC2) – Section 8.4 • Ribbed bars</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button id="printBtn" class="btn ghost" title="Print / Save as PDF">🖨️ Print</button>
+      <div class="theme-switch" title="Toggle light/dark mode">
+        <input type="checkbox" id="themeToggle" aria-label="Dark mode" />
+        <label for="themeToggle"><span class="sun">☀️</span><span class="moon">🌙</span></label>
+      </div>
+    </div>
+  </header>
+
+  <main class="container grid">
+    <section class="card" id="inputs">
+      <h2>Inputs</h2>
+      <div class="note">Sign convention for <strong>σ<sub>sd</sub></strong>: Positive = tension, Negative = compression.</div>
+      <form id="inputForm">
+        <fieldset>
+          <legend>General Inputs</legend>
+          <div class="fields two-col">
+            <div class="field"><label for="sigmaSd">σ<sub>sd</sub> (MPa)</label><input id="sigmaSd" type="number" step="0.01" value="435" /></div>
+            <div class="field"><label for="fck">f<sub>ck</sub> (MPa)</label><input id="fck" type="number" step="1" value="30" /></div>
+            <div class="field"><label for="fyk">f<sub>yk</sub> (MPa)</label><input id="fyk" type="number" step="1" value="500" /></div>
+            <div class="field"><label for="phiInput">Input bar diameter φ (mm)</label><input id="phiInput" type="number" step="0.1" value="16" /></div>
+            <div class="field"><label for="gammaC">γ<sub>c</sub></label><input id="gammaC" type="number" step="0.01" value="1.5" /></div>
+            <div class="field"><label for="gammaS">γ<sub>s</sub></label><input id="gammaS" type="number" step="0.01" value="1.15" /></div>
+            <div class="field"><label for="a">a – bar spacing (mm)</label><input id="a" type="number" step="1" value="100" /></div>
+            <div class="field"><label for="c">c – clear top/bottom cover (mm)</label><input id="c" type="number" step="1" value="30" /></div>
+            <div class="field"><label for="c1">c₁ – clear side cover (mm)</label><input id="c1" type="number" step="1" value="30" /></div>
+            <div class="field"><label for="sumAst">ΣA<sub>st</sub> within l<sub>bd</sub> (mm²)</label><input id="sumAst" type="number" step="1" value="0" /></div>
+            <div class="field"><label for="p">p – transverse pressure (MPa)</label><input id="p" type="number" step="0.01" value="0" /></div>
+          </div>
+          <figure class="cd-figure">
+            <img src="assets/cd-definition.png" alt="c_d definition" />
+            <figcaption>Fig: c<sub>d</sub> definition (relevant to inputs a, c, c₁).</figcaption>
+          </figure>
+        </fieldset>
+
+        <div class="separator" role="separator"></div>
+
+        <fieldset>
+          <legend>Selections</legend>
+          <div class="fields two-col">
+            <div class="field">
+              <label for="bondCond">Bond condition</label>
+              <select id="bondCond">
+                <option value="a">a) 45° ≤ α ≤ 90° (good)</option>
+                <option value="b">b) h ≤ 250 mm (good)</option>
+                <option value="c">c) 250 &lt; h ≤ 600 mm (poor)</option>
+                <option value="d">d) h &gt; 600 mm, bars in top 300 mm (poor)</option>
+                <option value="slip">Slip-form construction (poor)</option>
+              </select>
+              <figure>
+                <img src="assets/bond-conditions.png" alt="Bond condition sketches" />
+                <figcaption>Fig: Bond conditions. Cases a &amp; b are good; cases c &amp; d and slip-form are poor.</figcaption>
+              </figure>
+            </div>
+            <div class="field">
+              <label for="barForm">Bar form</label>
+              <select id="barForm">
+                <option value="straight">Straight bars</option>
+                <option value="hooked">Hooked / bent bars</option>
+                <option value="loop">Looped bars</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="barPos">Bar position relative to transverse reinforcement</label>
+              <select id="barPos">
+                <option value="fully">Fully enclosed</option>
+                <option value="partial">Partially enclosed</option>
+                <option value="none">Bar not enclosed</option>
+              </select>
+              <figure>
+                <img src="assets/k-values.png" alt="K values by position" />
+                <figcaption>Fig: K values for α₃ by bar position.</figcaption>
+              </figure>
+            </div>
+            <div class="field">
+              <label for="elementType">Structural element</label>
+              <select id="elementType">
+                <option value="beam">Beam</option>
+                <option value="slab">Slab</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="welded">Connection to transverse reinforcement</label>
+              <select id="welded">
+                <option value="no">Not welded</option>
+                <option value="yes">Welded to transverse reinforcement</option>
+              </select>
+              <figure>
+                <img src="assets/welded.png" alt="Welded detail" />
+                <figcaption>Detail: Welded transverse reinforcement (φ<sub>t</sub> ≥ 0.6 φ) applicable for α₄.</figcaption>
+              </figure>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="calcBtn" class="btn primary">Calculate</button>
+          <span class="hint">Summary is always for the <strong>input diameter</strong>.</span>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" id="results">
+      <h2>Summary of Results</h2>
+      <div id="summary" class="summary-grid">
+        <div class="summary-item">
+          <div class="label">Required l<sub>bd,req</sub> (for input φ)</div>
+          <div class="value" id="inputLbd">—</div>
+          <div class="small" id="inputPhi"></div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Bond class η<sub>1</sub></div>
+          <div class="value" id="eta1">—</div>
+          <div class="small">Good = 1.0, Poor = 0.7</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Concrete tensile design f<sub>ctd</sub></div>
+          <div class="value" id="fctd">—</div>
+          <div class="small">MPa</div>
+        </div>
+      </div>
+
+      <h3>Results Table</h3>
+      <div class="table-wrap">
+        <table id="resultTable" class="table">
+          <thead>
+            <tr>
+              <th>φ (mm)</th>
+              <th>f<sub>bd</sub> (MPa)</th>
+              <th>l<sub>b,rqd</sub> (mm)</th>
+              <th>α<sub>1</sub></th>
+              <th>(α₂·α₃·α₅)<sub>eff</sub></th>
+              <th>α₄</th>
+              <th>l<sub>bd</sub> (mm)</th>
+              <th>l<sub>b,min</sub> (mm)</th>
+              <th>l<sub>bd,req</sub> (mm)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <p class="muted">Tip: Click a row to see the detailed calculation for that diameter.</p>
+    </section>
+
+    <section class="card" id="details">
+      <h2>Detailed Calculation</h2>
+      <div id="detailContent" class="prose">
+        <p>Run a calculation to see a step‑by‑step derivation with all formulas and intermediate values for the selected diameter.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p class="muted small">Anchorage design follows EN 1992-1-1 §8.4.2–8.4.3.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
